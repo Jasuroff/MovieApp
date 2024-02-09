@@ -20,6 +20,11 @@ class MultiAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         notifyDataSetChanged()
     }
 
+    fun addData(data: BaseModel){
+        this.data.add(data)
+        this.data.sortBy { it.getType() }
+        notifyItemInserted(this.data.size)
+    }
     override fun getItemViewType(position: Int): Int {
         return data[position].getType()
     }

@@ -1,37 +1,52 @@
 package com.example.examapp.ui.home.vm
 
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.examapp.base.BaseViewModel
 import com.example.examapp.core.model.now.FilmsNowPlayingResponse
 import com.example.examapp.core.model.popular.FilmsPopularResponse
+import com.example.examapp.core.model.popular.PopularResult
 import com.example.examapp.core.repository.FilmsRepository
 import kotlinx.coroutines.launch
 
-class HomeScreenVM : ViewModel() {
+class HomeScreenVM : BaseViewModel() {
 
     private val repository = FilmsRepository()
-
-    val filmsNowLiveData: MutableLiveData<FilmsNowPlayingResponse?> = MutableLiveData()
-    val filmsPopularLiveData: MutableLiveData<FilmsPopularResponse?> = MutableLiveData()
+    val filmsPopularLiveData: MutableLiveData<FilmsPopularResponse> = MutableLiveData()
+    val filmsNowLiveData: MutableLiveData<FilmsNowPlayingResponse> = MutableLiveData()
     val errorLiveData: MutableLiveData<String?> = MutableLiveData()
 
-    fun getFilmsData() {
+    fun getFilmsData() {//filmsNowLiveData
 
         viewModelScope.launch {
             val resultNow = repository.getNowFilms()
             val resultPopular = repository.getPopularFilms()
 
             if (resultNow != null) {
-                filmsNowLiveData.value = resultNow.data!!
+                resultNow.let {
+                    filmsNowLiveData.value = it
+                }
+
+
             } else {
-                errorLiveData.value = resultNow.error
+                errorLiveData.value = "ERROR"
             }
-            if (resultPopular!= null){
-                filmsPopularLiveData.value = resultPopular.data!!
-            }
+            resultPopular.data!!.also { filmsPopularLiveData.value = it }
         }
 
+    }
+    fun getPopular(){
+        launch {
+            val result =repository.getPopularFilms()
+            if (result.data!=null) {
+                result.data.let {
+                    filmsPopularLiveData.value=it
+                }
+              // filmsNowLiveData.value=result.data
+            }else{
+                errorLiveData.value="Error"
+            }
+        }
     }
 
 }
